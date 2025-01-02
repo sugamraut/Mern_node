@@ -1,9 +1,9 @@
+require('dotenv').config()
 const express= require('express');
 const app=express();
 //  const mongoose=require('mongoose')
 // mongoose.connect('mongodb+srv://sugamrautbim:sugam123@cluster0.a490a.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 const connectToDatabase=require('./database/index');
-port=3000;
 
 connectToDatabase()
 app.get("/",(req,res)=>{
@@ -16,8 +16,8 @@ app.get("/about",(req,res)=>{
         message:"hello i am about page!!"
     })
 })
-app.listen(`${port}`,()=>{
-    console.log(`this app is start at port nunmber ${port}`)
+app.listen(process.env.PORT,()=>{
+    console.log(`this app is start at port nunmber`)
 })
 
 //mongodb+srv://sugamrautbim:<db_password>@cluster0.a490a.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
