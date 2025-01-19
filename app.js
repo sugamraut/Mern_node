@@ -2,16 +2,32 @@ require('dotenv').config()
 const express= require('express');
 const app=express();
 const connectToDatabase=require('./database/index');
-connectToDatabase()
+const Blog = require('./model/blogModel');
+
 app.use(express.json())
+connectToDatabase()
 
 app.get("/",(req,res)=>{
     res.status(200).json({
         message:"Hello World!!"
     })
 })
-app.post("/blog",(req,res)=>{
+app.post("/blog",async(req,res)=>{
     console.log(req.body)
+    const {title,subtitle,description,image}=req.body
+    console.log(title,subtitle,description,image)
+    if(!title||!description||!subtitle||!image){
+        return res.status(400).json({
+            message: "please provide the title description, substile ,image"
+        })
+    }
+    await Blog.create({
+        title:title,
+        description: description,
+        subtitle: subtitle,
+        image:image
+
+    })
     res.status(200).json({
         message:"blog push successfully"
     })
