@@ -3,7 +3,8 @@ const express= require('express');
 const app=express();
 const connectToDatabase=require('./database/index');
 const Blog = require('./model/blogModel');
-
+const {multer,storage} = require('./middleware/multerConfig')
+const upload = multer({storage : storage })
 app.use(express.json())
 connectToDatabase()
 
@@ -12,7 +13,7 @@ app.get("/",(req,res)=>{
         message:"Hello World!!"
     })
 })
-app.post("/blog",async(req,res)=>{
+app.post("/blog",upload.single('image'),async(req,res)=>{
     console.log(req.body)
     const {title,subtitle,description,image}=req.body
     console.log(title,subtitle,description,image)
@@ -25,7 +26,7 @@ app.post("/blog",async(req,res)=>{
         title:title,
         description: description,
         subtitle: subtitle,
-        image:image
+        image:filename
 
     })
     res.status(200).json({
@@ -40,4 +41,3 @@ app.get("/about",(req,res)=>{
 app.listen(process.env.PORT,()=>{
     console.log(`this app is start at port nunmber`)
 })
-
