@@ -15,9 +15,12 @@ app.get("/",(req,res)=>{
 })
 app.post("/blog",upload.single('image'),async(req,res)=>{
     console.log(req.body)
+    console.log(req.file)
     const {title,subtitle,description,image}=req.body
     console.log(title,subtitle,description,image)
-    if(!title||!description||!subtitle||!image){
+    const filename =req.file.filename
+
+    if(!title||!description||!subtitle){
         return res.status(400).json({
             message: "please provide the title description, substile ,image"
         })
@@ -26,11 +29,18 @@ app.post("/blog",upload.single('image'),async(req,res)=>{
         title:title,
         description: description,
         subtitle: subtitle,
-        image:image
+        image : filename
 
     })
     res.status(200).json({
         message:"blog push successfully"
+    })
+})
+app.get("/blog",async(req,res)=>{
+    const blogs=await Blog.find()//return always array 
+    res.status(200).json({
+        message:"blogs fetch successfully",
+        data: blogs
     })
 })
 app.get("/about",(req,res)=>{
@@ -38,6 +48,8 @@ app.get("/about",(req,res)=>{
         message:"hello i am about page!!"
     })
 })
+app.use(express.static('./storage'))
+
 app.listen(process.env.PORT,()=>{
     console.log(`this app is start at port nunmber`)
 })
