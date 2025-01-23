@@ -26,7 +26,7 @@ app.post("/blog",upload.single('image'),async(req,res)=>{
         title:title,
         description: description,
         subtitle: subtitle,
-        image:filename
+        image:image
 
     })
     res.status(200).json({
