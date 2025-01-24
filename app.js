@@ -1,11 +1,13 @@
 require('dotenv').config()
 const express= require('express');
 const app=express();
+app.use(express.json())
 const connectToDatabase=require('./database/index');
 const Blog = require('./model/blogModel');
 const {multer,storage} = require('./middleware/multerConfig')
 const upload = multer({storage : storage })
-app.use(express.json())
+const fs=require("fs")
+
 connectToDatabase()
 
 app.get("/",(req,res)=>{
@@ -47,7 +49,7 @@ app.get("/blog",async(req,res)=>{
     })
 })
 
-//edit the data
+//get the data
 app.get("/blog/:id",async(req,res)=>{
     console.log(req.body)
     const id=req.params.id
@@ -68,14 +70,48 @@ app.get("/blog/:id",async(req,res)=>{
 //delete
 app.delete("/blog/:id",async(req,res)=>{
     const id=req.params.id
+    const blog=await Blog.findById(id)
+    const imageName=blog.image
     await Blog.findByIdAndDelete(id)
+    fs.unlink(`storage/${imageName}`,(err)=>{
+        if(err){
+            console.log(err)
+        }else{
+            console.log("file delected successfully")
+        }
+    })
+
     res.status(200).json({
         message: "blog deleted successfully"
     }) 
 })
-//update
-app.patch("/blog/:id",(req,res)=>{
-
+//update/edit
+app.patch("/blog/:id",upload.single('image'),async(req,res)=>{
+    const id=req.params.id
+    const{title,substile,description}=req.body
+    let imageName;
+    if(req.file){
+        imageName=req.file.filename
+        const blog=await Blog.findById(id)
+        const oldimageName=blog.image
+        fs.unlink(`storage/${oldimageName}`,(err)=>{
+            if(err){
+                console.log(err)
+            }else{
+                console.log("file delected successfully")
+            }
+        })
+    }
+    await Blog.findByIdAndUpdate(id,{
+        title: title,
+        substile:substile,
+        description:description,
+        image:imageName
+    })
+    res.status(200).json({
+        message:"blog updated successfully"
+    })
+    
 })
 
 
